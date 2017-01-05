@@ -39,15 +39,10 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_list_selector"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"/>
+            android:layout_alignParentEnd="true"
+            android:onClick="onClick"/>
     </RelativeLayout>
-    <ListView
-        android:id="@+id/song_list"
-        android:layout_below="@id/music_detail_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-    </ListView>
     <RelativeLayout
         android:id="@+id/function_btn_layout"
         android:layout_width="match_parent"
@@ -59,19 +54,22 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_prev_selector"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:onClick="onClick"/>
         <Button
             android:id="@+id/btn_round_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_round_play_selector"
-            android:layout_toRightOf="@id/btn_prev_song" />
+            android:layout_toRightOf="@id/btn_prev_song"
+            android:onClick="onClick"/>
         <Button
             android:id="@+id/btn_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/btn_play_selector" />
+            android:background="@drawable/btn_play_selector"
+            android:onClick="onClick"/>
 
         <Button
             android:id="@+id/btn_next"
@@ -79,12 +77,22 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_next_selector"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:onClick="onClick"/>
         <Button
             android:id="@+id/btn_random"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_random_play_selector"
-            android:layout_toLeftOf="@id/btn_next" />
+            android:layout_toLeftOf="@id/btn_next"
+            android:onClick="onClick"/>
     </RelativeLayout>
+    <ListView
+        android:id="@+id/song_list"
+        android:layout_below="@id/music_detail_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/function_btn_layout">
+
+    </ListView>
 </RelativeLayout>
