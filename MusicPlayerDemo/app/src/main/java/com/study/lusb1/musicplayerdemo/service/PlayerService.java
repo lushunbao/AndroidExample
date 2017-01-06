@@ -2,6 +2,7 @@ package com.study.lusb1.musicplayerdemo.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -21,7 +22,12 @@ public class PlayerService extends Service {
     private List<Mp3Info> musicList = new ArrayList<>();
     private MediaPlayer mediaPlayer;
 
-    boolean isPlaying = false;
+    private boolean isPlaying = false;
+    private int currentTime = 0;
+    private String url;
+    private String mode;
+    private int currentPosition = 0;
+    private int playState = 0;
 
     @Override
     public void onCreate() {
@@ -44,36 +50,67 @@ public class PlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try{
-//            int position = intent.getIntExtra("position",0);
-            String url = musicList.get(0).getUrl();
-//            Log.d("lusb1",url);
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//            Log.d("lusb1","onStart");
-            String mode = intent.getStringExtra("mode");
+            currentPosition = intent.getIntExtra("position",0);
+            url = musicList.get(currentPosition).getUrl();
+            mode = intent.getStringExtra("mode");
+            playState = intent.getIntExtra("playState",0);
             if(mode != null && !mode.equals("")){
                 switch(mode){
                     case "play":
                         isPlaying = true;
-                        mediaPlayer.start();
+                        play(currentTime);
                         break;
                     case "pause":
                         isPlaying = false;
-                        mediaPlayer.pause();
+                        pause();
                         break;
                 }
             }
         }
         catch(Exception e){
-
             e.printStackTrace();
-            Log.d("lusb1",e+"");
         }
 
         return super.onStartCommand(intent, flags, startId);
     }
 
+
+    public void play(int currentTime){
+        if(playState == 0){
+            currentTime = 0;
+        }
+        try{
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepare();
+            mediaPlayer.setOnPreparedListener(new MyPreparedListener(currentTime));
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void pause(){
+        if(mediaPlayer != null && mediaPlayer.isPlaying()){
+            mediaPlayer.pause();
+            currentTime = mediaPlayer.getCurrentPosition();
+        }
+    }
+
+    private final class MyPreparedListener implements MediaPlayer.OnPreparedListener{
+        private int currentTime;
+
+        public MyPreparedListener(int currentTime){
+            this.currentTime = currentTime;
+        }
+
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mediaPlayer.start();
+            if(currentTime > 0){
+                mediaPlayer.seekTo(currentTime);
+            }
+        }
+    }
 
 }

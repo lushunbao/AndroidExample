@@ -15,12 +15,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.study.lusb1.musicplayerdemo.R;
 import com.study.lusb1.musicplayerdemo.model.Mp3Info;
 import com.study.lusb1.musicplayerdemo.model.MySongListAdapter;
 import com.study.lusb1.musicplayerdemo.service.PlayerService;
+import com.study.lusb1.musicplayerdemo.util.Mp3LoaderUtil;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +32,25 @@ public class MainActivity extends AppCompatActivity {
     //views in this activity
     ListView allSongs;
     Button btn_play_pause;
+    TextView song_name_text;
+    TextView artist_text;
 
     //flags to indicate states
     boolean isPlaying = false;
 
     //the intent to trigger the service
     private Intent intent;
+
+    //position now in the play list
+    private int currentPosition = 0;
+
+    //music data
+    private List<Mp3Info> musicList;
+    //music amount
+    private int amount = 0;
+
+    //playing state : 0 for playing from the beginning,1 for playing from currentTime
+    private int playState = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,48 +65,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 isPlaying = true;
+                playState = 0;
+                currentPosition = position;
+                changeDetail(currentPosition);
+                btn_play_pause.setBackgroundResource(R.drawable.btn_pause);
                 intent = new Intent(MainActivity.this,PlayerService.class);
-                Log.d("lusb1",position+"");
-                intent.putExtra("position",position);
+                intent.putExtra("playState",playState);
+                intent.putExtra("mode","play");
+                intent.putExtra("position",currentPosition);
                 startService(intent);
             }
         });
-    }
-
-    //read all songs from sd card
-    public List<Mp3Info> getMp3Info(){
-        List<Mp3Info> songList = new ArrayList<>();
-        Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,null);
-        for(int i=0;i<cursor.getCount();i++){
-            Mp3Info mp3Info = new Mp3Info();
-            cursor.moveToNext();
-            //song id
-            mp3Info.setId(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID)));
-            //song name
-            mp3Info.setTitle(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-            //artist name
-            mp3Info.setArtist(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
-            //song duration
-            mp3Info.setDuration(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)));
-            //song size
-            mp3Info.setSize(cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)));
-            //song url
-            mp3Info.setUrl(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA)));
-            //is Music
-            int isMusic = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
-            //add songs to the list
-            if(isMusic != 0){
-                songList.add(mp3Info);
-            }
-        }
-        return songList;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == 1){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                MySongListAdapter adapter = new MySongListAdapter(this,getMp3Info());
+                musicList = Mp3LoaderUtil.getMp3List(this);
+                MySongListAdapter adapter = new MySongListAdapter(this,musicList);
                 allSongs.setAdapter(adapter);
             }
             else{
@@ -103,11 +96,15 @@ public class MainActivity extends AppCompatActivity {
     public void initView(){
         btn_play_pause = (Button)findViewById(R.id.btn_play);
         allSongs = (ListView)findViewById(R.id.song_list);
+        song_name_text = (TextView)findViewById(R.id.song_name);
+        artist_text = (TextView)findViewById(R.id.song_time);
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
         }
         else{
-            MySongListAdapter adapter = new MySongListAdapter(this,getMp3Info());
+            musicList = Mp3LoaderUtil.getMp3List(this);
+            amount = musicList.size();
+            MySongListAdapter adapter = new MySongListAdapter(this,musicList);
             allSongs.setAdapter(adapter);
         }
     }
@@ -117,18 +114,68 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_play:
                 if(isPlaying){
                     isPlaying = false;
+                    playState = 1;
                     btn_play_pause.setBackgroundResource(R.drawable.btn_play);
                     intent = new Intent(MainActivity.this,PlayerService.class);
+                    intent.putExtra("playState",playState);
                     intent.putExtra("mode","pause");
+                    intent.putExtra("position",currentPosition);
                     startService(intent);
                 }
                 else{
                     isPlaying = true;
                     btn_play_pause.setBackgroundResource(R.drawable.btn_pause);
+                    changeDetail(currentPosition);
                     intent = new Intent(MainActivity.this,PlayerService.class);
+                    intent.putExtra("playState",playState);
                     intent.putExtra("mode","play");
+                    intent.putExtra("position",currentPosition);
                     startService(intent);
                 }
+                break;
+            case R.id.btn_next:
+                if(isPlaying){
+                    playState = 0;
+                    currentPosition = (currentPosition+1+amount)%amount;
+                    changeDetail(currentPosition);
+                    intent = new Intent(MainActivity.this,PlayerService.class);
+                    intent.putExtra("playState",playState);
+                    intent.putExtra("mode","play");
+                    intent.putExtra("position",currentPosition);
+                    startService(intent);
+                }
+                else{
+                    playState = 0;
+                    currentPosition = (currentPosition+1+amount)%amount;
+                    changeDetail(currentPosition);
+                }
+                break;
+            case R.id.btn_prev:
+                if(isPlaying){
+                    playState = 0;
+                    currentPosition = (currentPosition-1+amount)%amount;
+                    changeDetail(currentPosition);
+                    intent = new Intent(MainActivity.this,PlayerService.class);
+                    intent.putExtra("playState",playState);
+                    intent.putExtra("mode","play");
+                    intent.putExtra("position",currentPosition);
+                    startService(intent);
+                }
+                else{
+                    playState = 0;
+                    currentPosition = (currentPosition-1+amount)%amount;
+                    changeDetail(currentPosition);
+                }
+                break;
         }
+    }
+
+    //change the detail in the head to show a song's name and it's artist
+    public void changeDetail(int currentPosition){
+        Mp3Info mp3Info = musicList.get(currentPosition);
+        String song_name = mp3Info.getTitle();
+        String artist_name = mp3Info.getArtist();
+        song_name_text.setText(song_name);
+        artist_text.setText(artist_name);
     }
 }

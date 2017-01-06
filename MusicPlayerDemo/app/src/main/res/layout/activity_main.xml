@@ -25,14 +25,16 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/album_icon"
             android:layout_toRightOf="@id/album_icon"
-            android:text="@string/app_name"/>
+            android:maxLines="1"
+            android:ellipsize="marquee"/>
         <TextView
             android:id="@+id/song_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/album_icon"
             android:layout_toRightOf="@id/album_icon"
-            android:text="@string/app_name"/>
+            android:maxLines="1"
+            android:ellipsize="marquee"/>
         <Button
             android:id="@+id/btn_play_list"
             android:layout_width="wrap_content"
@@ -49,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
         <Button
-            android:id="@+id/btn_prev_song"
+            android:id="@+id/btn_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_prev_selector"
@@ -61,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_round_play_selector"
-            android:layout_toRightOf="@id/btn_prev_song"
+            android:layout_toRightOf="@id/btn_prev"
             android:onClick="onClick"/>
         <Button
             android:id="@+id/btn_play"
