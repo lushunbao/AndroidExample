@@ -35,7 +35,7 @@
             android:layout_toRightOf="@id/album_icon"
             android:maxLines="1"
             android:ellipsize="marquee"/>
-        <Button
+        <ImageButton
             android:id="@+id/btn_play_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
-        <Button
+        <ImageButton
             android:id="@+id/btn_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,14 +58,14 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:onClick="onClick"/>
-        <Button
+        <ImageButton
             android:id="@+id/btn_round_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_round_play_selector"
             android:layout_toRightOf="@id/btn_prev"
             android:onClick="onClick"/>
-        <Button
+        <ImageButton
             android:id="@+id/btn_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
             android:background="@drawable/btn_play_selector"
             android:onClick="onClick"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:onClick="onClick"/>
-        <Button
+        <ImageButton
             android:id="@+id/btn_random"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

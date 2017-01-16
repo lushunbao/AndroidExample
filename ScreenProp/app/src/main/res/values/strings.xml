@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ScreenProp</string>
+    <string name="width_dp">屏幕宽度(dp)</string>
+    <string name="height_dp">屏幕高度(dp)</string>
+    <string name="width_px">屏幕宽度(px)</string>
+    <string name="height_px">屏幕高度(px)</string>
+    <string name="density">屏幕密度</string>
+    <string name="btn_get_info">获取屏幕信息</string>
+    <string name="text_cal">点击按钮计算</string>
+</resources>

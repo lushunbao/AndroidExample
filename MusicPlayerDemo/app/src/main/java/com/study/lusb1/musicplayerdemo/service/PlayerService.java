@@ -1,7 +1,10 @@
 package com.study.lusb1.musicplayerdemo.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -28,16 +31,23 @@ public class PlayerService extends Service {
     private String mode;
     private int currentPosition = 0;
     private int playState = 0;
+    private int repeatMode = 1;
+    private ServiceReceiver serviceReceiver = new ServiceReceiver();
 
     @Override
     public void onCreate() {
         super.onCreate();
         musicList = Mp3LoaderUtil.getMp3List(this);
         mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnCompletionListener(new MyCompletionListener());
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.lusb1.MainServiceReceiver");
+        registerReceiver(serviceReceiver,intentFilter);
     }
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(serviceReceiver);
         super.onDestroy();
     }
 
@@ -106,11 +116,43 @@ public class PlayerService extends Service {
 
         @Override
         public void onPrepared(MediaPlayer mp) {
-            mediaPlayer.start();
+            mp.start();
             if(currentTime > 0){
-                mediaPlayer.seekTo(currentTime);
+                mp.seekTo(currentTime);
             }
         }
     }
+
+    private final class MyCompletionListener implements MediaPlayer.OnCompletionListener{
+
+        public MyCompletionListener(){}
+
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            if(repeatMode == 1){
+                currentPosition = (currentPosition + musicList.size() + 1)%musicList.size();
+                url = musicList.get(currentPosition).getUrl();
+                play(0);
+            }
+            else if(repeatMode == 0){
+                play(0);
+            }
+            Log.d("lusb1",repeatMode+"");
+            Intent intent = new Intent("com.lusb1.MainActivityReceiver");
+            intent.putExtra("currentPosition",currentPosition);
+            sendBroadcast(intent);
+        }
+    }
+
+    public class ServiceReceiver extends BroadcastReceiver{
+        public ServiceReceiver() {}
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            repeatMode = intent.getIntExtra("repeatMode",1);
+            Log.d("lusb1",repeatMode+"in receiver");
+        }
+    }
+
+
 
 }

@@ -1,7 +1,10 @@
 package com.study.lusb1.musicplayerdemo.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.MediaStore;
@@ -14,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,9 +35,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     //views in this activity
     ListView allSongs;
-    Button btn_play_pause;
+    ImageButton btn_play_pause;
+    ImageButton btn_round_play;
     TextView song_name_text;
-    TextView artist_text;
+    TextView song_duration;
 
     //flags to indicate states
     boolean isPlaying = false;
@@ -51,10 +56,19 @@ public class MainActivity extends AppCompatActivity {
 
     //playing state : 0 for playing from the beginning,1 for playing from currentTime
     private int playState = 0;
+
+    //playing mode : 0 for one song repeat,1 for list repeat
+    private int repeatMode = 1;
+
+    //receiver for play position change while repeatMode is repeat all
+    private PlayerReceiver playerReceiver = new PlayerReceiver();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.lusb1.MainActivityReceiver");
+        registerReceiver(playerReceiver,intentFilter);
         initView();
     }
 
@@ -94,10 +108,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initView(){
-        btn_play_pause = (Button)findViewById(R.id.btn_play);
+        btn_play_pause = (ImageButton)findViewById(R.id.btn_play);
+        btn_round_play = (ImageButton)findViewById(R.id.btn_round_play);
         allSongs = (ListView)findViewById(R.id.song_list);
         song_name_text = (TextView)findViewById(R.id.song_name);
-        artist_text = (TextView)findViewById(R.id.song_time);
+        song_duration = (TextView)findViewById(R.id.song_time);
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
         }
@@ -167,6 +182,20 @@ public class MainActivity extends AppCompatActivity {
                     changeDetail(currentPosition);
                 }
                 break;
+            case R.id.btn_round_play:
+                if(repeatMode == 1){
+                    repeatMode = 0;
+                    btn_round_play.setBackgroundResource(R.drawable.btn_repeat_one);
+                }
+                else if(repeatMode == 0){
+                    repeatMode = 1;
+                    btn_round_play.setBackgroundResource(R.drawable.btn_round_play_selector);
+                }
+                Log.d("lusb1",repeatMode+"");
+                Intent intent = new Intent("com.lusb1.MainServiceReceiver");
+                intent.putExtra("repeatMode",repeatMode);
+                sendBroadcast(intent);
+                break;
         }
     }
 
@@ -174,8 +203,24 @@ public class MainActivity extends AppCompatActivity {
     public void changeDetail(int currentPosition){
         Mp3Info mp3Info = musicList.get(currentPosition);
         String song_name = mp3Info.getTitle();
-        String artist_name = mp3Info.getArtist();
+        String duration = Mp3LoaderUtil.formatTime(mp3Info.getDuration());
         song_name_text.setText(song_name);
-        artist_text.setText(artist_name);
+        song_duration.setText(duration);
+    }
+
+    public class PlayerReceiver extends BroadcastReceiver{
+        public PlayerReceiver() {}
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int currentPosition = intent.getIntExtra("currentPosition",0);
+            changeDetail(currentPosition);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(playerReceiver);
+        super.onDestroy();
     }
 }
