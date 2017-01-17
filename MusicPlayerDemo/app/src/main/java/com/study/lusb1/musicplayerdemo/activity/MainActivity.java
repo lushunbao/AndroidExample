@@ -57,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     //playing state : 0 for playing from the beginning,1 for playing from currentTime
     private int playState = 0;
 
+    //playing mode : play or pause or stop
+    private String mode = "play";
+
     //playing mode : 0 for one song repeat,1 for list repeat
     private int repeatMode = 1;
 
@@ -80,14 +83,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 isPlaying = true;
                 playState = 0;
+                mode = "play";
                 currentPosition = position;
                 changeDetail(currentPosition);
                 btn_play_pause.setBackgroundResource(R.drawable.btn_pause);
-                intent = new Intent(MainActivity.this,PlayerService.class);
-                intent.putExtra("playState",playState);
-                intent.putExtra("mode","play");
-                intent.putExtra("position",currentPosition);
-                startService(intent);
+                generateServiceIntent(playState,mode,currentPosition);
             }
         });
     }
@@ -130,34 +130,25 @@ public class MainActivity extends AppCompatActivity {
                 if(isPlaying){
                     isPlaying = false;
                     playState = 1;
+                    mode = "pause";
                     btn_play_pause.setBackgroundResource(R.drawable.btn_play);
-                    intent = new Intent(MainActivity.this,PlayerService.class);
-                    intent.putExtra("playState",playState);
-                    intent.putExtra("mode","pause");
-                    intent.putExtra("position",currentPosition);
-                    startService(intent);
+                    generateServiceIntent(playState,mode,currentPosition);
                 }
                 else{
                     isPlaying = true;
                     btn_play_pause.setBackgroundResource(R.drawable.btn_pause);
                     changeDetail(currentPosition);
-                    intent = new Intent(MainActivity.this,PlayerService.class);
-                    intent.putExtra("playState",playState);
-                    intent.putExtra("mode","play");
-                    intent.putExtra("position",currentPosition);
-                    startService(intent);
+                    mode = "play";
+                    generateServiceIntent(playState,mode,currentPosition);
                 }
                 break;
             case R.id.btn_next:
                 if(isPlaying){
                     playState = 0;
+                    mode = "play";
                     currentPosition = (currentPosition+1+amount)%amount;
                     changeDetail(currentPosition);
-                    intent = new Intent(MainActivity.this,PlayerService.class);
-                    intent.putExtra("playState",playState);
-                    intent.putExtra("mode","play");
-                    intent.putExtra("position",currentPosition);
-                    startService(intent);
+                    generateServiceIntent(playState,mode,currentPosition);
                 }
                 else{
                     playState = 0;
@@ -168,13 +159,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_prev:
                 if(isPlaying){
                     playState = 0;
+                    mode = "play";
                     currentPosition = (currentPosition-1+amount)%amount;
                     changeDetail(currentPosition);
-                    intent = new Intent(MainActivity.this,PlayerService.class);
-                    intent.putExtra("playState",playState);
-                    intent.putExtra("mode","play");
-                    intent.putExtra("position",currentPosition);
-                    startService(intent);
+                    generateServiceIntent(playState,mode,currentPosition);
                 }
                 else{
                     playState = 0;
@@ -222,5 +210,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         unregisterReceiver(playerReceiver);
         super.onDestroy();
+    }
+
+    //generate the intent to start service,carry important information
+    private void generateServiceIntent(int playState,String mode,int currentPosition){
+        intent = new Intent(MainActivity.this,PlayerService.class);
+        intent.putExtra("playState",playState);
+        intent.putExtra("mode",mode);
+        intent.putExtra("position",currentPosition);
+        startService(intent);
     }
 }
