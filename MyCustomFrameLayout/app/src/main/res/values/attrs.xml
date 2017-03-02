@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MyProgressBar">
+        <attr name="radius" format="dimension"/>
+        <attr name="cicle_width" format="dimension"/>
+    </declare-styleable>
+</resources>
