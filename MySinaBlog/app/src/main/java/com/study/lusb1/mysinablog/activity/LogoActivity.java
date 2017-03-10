@@ -10,16 +10,16 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.study.lusb1.mysinablog.R;
+import com.study.lusb1.mysinablog.service.MainService;
 
-public class LogoActivity extends AppCompatActivity {
+public class LogoActivity extends BaseActivity implements IWeiboActivity {
 
     private ImageView img_logo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getSupportActionBar().hide();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        startService(new Intent(LogoActivity.this, MainService.class));
+
         setContentView(R.layout.logo_activity);
         initView();
         startLaunchAnim();
@@ -50,5 +50,15 @@ public class LogoActivity extends AppCompatActivity {
             }
         });
         img_logo.startAnimation(animation);
+    }
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void refresh(Object... params) {
+
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.study.lusb1.mysinablog">
+    package="com.example.lushunbao.mysqlitetest">
 
     <application
         android:allowBackup="true"
@@ -8,22 +8,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.LogoActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.LoginActivity" />
-
-        <service
-            android:name=".service.MainService"
-            android:enabled="true"
-            android:exported="true" />
-
-        <activity android:name=".activity.BaseActivity" />
-        <activity android:name=".activity.AuthActivity"></activity>
     </application>
 
 </manifest>

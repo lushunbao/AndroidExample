@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MySinaBlog</string>
+    <string name="login">Login</string>
+    <string name="auth_tip">Tips for auth</string>
+    <string name="auth_msg">第一次登陆需要使用您的新浪微博账户进行登陆授权第一次登陆需要使用您的新浪微博账户进行登陆授权第一次登陆需要使用您的新浪微博账户进行登陆授权</string>
+    <string name="btn_auth">授权</string>
 </resources>
