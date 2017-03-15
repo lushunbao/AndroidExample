@@ -72,7 +72,7 @@ public class MainService extends Service implements Runnable {
         }
     }
 
-    public static void newTask(Task task){
+    public static void newTask(Activity activity,Task task){
         tasks.add(task);
     }
 
