@@ -18,15 +18,12 @@ public class LogoActivity extends BaseActivity implements IWeiboActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //开启主服务
         startService(new Intent(LogoActivity.this, MainService.class));
 
         setContentView(R.layout.logo_activity);
-        initView();
+        init();
         startLaunchAnim();
-    }
-
-    public void initView(){
-        img_logo = (ImageView)findViewById(R.id.img_logo);
     }
 
     public void startLaunchAnim(){
@@ -54,7 +51,7 @@ public class LogoActivity extends BaseActivity implements IWeiboActivity {
 
     @Override
     public void init() {
-
+        img_logo = (ImageView)findViewById(R.id.img_logo);
     }
 
     @Override

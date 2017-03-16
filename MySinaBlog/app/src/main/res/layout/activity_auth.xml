@@ -7,5 +7,10 @@
     tools:context="com.study.lusb1.mysinablog.activity.AuthActivity"
     android:orientation="vertical"
     android:background="@drawable/launch_bg">
-
+    <TextView
+        android:id="@+id/access_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="10dp"/>
 </LinearLayout>

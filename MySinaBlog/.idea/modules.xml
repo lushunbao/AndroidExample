@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MySinaBlog.iml" filepath="$PROJECT_DIR$/MySinaBlog.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/openDefault-1.0.0-openDefaultRelease/openDefault-1.0.0-openDefaultRelease.iml" filepath="$PROJECT_DIR$/openDefault-1.0.0-openDefaultRelease/openDefault-1.0.0-openDefaultRelease.iml" />
     </modules>
   </component>
 </project>

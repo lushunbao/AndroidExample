@@ -9,6 +9,8 @@ import android.os.Message;
 import android.util.Log;
 
 import com.study.lusb1.mysinablog.activity.IWeiboActivity;
+import com.study.lusb1.mysinablog.beans.User;
+import com.study.lusb1.mysinablog.db.MyDatabaseHelper;
 import com.study.lusb1.mysinablog.model.Task;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public class MainService extends Service implements Runnable {
     //task queue
     private static Queue<Task> tasks = new LinkedList<>();
     //activity list
-    private static ArrayList<Activity> activityArrayList = new ArrayList<>();
+    private static ArrayList<Activity> activityList = new ArrayList<>();
     //switch of the runnable
     private boolean isRun = false;
     //time of thread sleep
@@ -73,6 +75,7 @@ public class MainService extends Service implements Runnable {
     }
 
     public static void newTask(Activity activity,Task task){
+        activityList.add(activity);
         tasks.add(task);
     }
 
@@ -81,8 +84,10 @@ public class MainService extends Service implements Runnable {
         msg.what = task.getTaskId();
         switch(task.getTaskId()){
             case Task.WEIBO_LOGIN:
-                Log.d("lusb1","login task is running");
-                msg.obj = "login success";
+                Log.d("lusb1","check if there is any user");
+                UserService userService = new UserService(new MyDatabaseHelper(MainService.this));
+                ArrayList<User> users = userService.getAllUsers();
+                msg.obj = users;
                 break;
             default:
                 break;
@@ -91,8 +96,8 @@ public class MainService extends Service implements Runnable {
     }
 
     private Activity getActivityByName(String name){
-        if(activityArrayList != null){
-            for(Activity activity : activityArrayList){
+        if(activityList != null){
+            for(Activity activity : activityList){
                 if(activity.getClass().getName().indexOf(name) > 0){
                     return activity;
                 }

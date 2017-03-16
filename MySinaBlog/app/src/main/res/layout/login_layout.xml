@@ -31,14 +31,24 @@
             android:src="@drawable/account_head_default"/>
     </LinearLayout>
 
-    <Spinner
-        android:id="@+id/account_spinner"
-        android:layout_marginTop="200dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
 
-    </Spinner>
+    <LinearLayout
+        android:layout_marginTop="200dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_user_now"/>
+        <Button
+            android:id="@+id/btn_choose_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_choose_user"/>
+    </LinearLayout>
     <Button
         android:id="@+id/btn_login"
         android:layout_width="wrap_content"
