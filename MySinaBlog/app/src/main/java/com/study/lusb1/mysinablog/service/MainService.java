@@ -9,13 +9,23 @@ import android.os.Message;
 import android.util.Log;
 
 import com.study.lusb1.mysinablog.activity.IWeiboActivity;
-import com.study.lusb1.mysinablog.beans.User;
+import com.study.lusb1.mysinablog.beans.Constants;
+import com.study.lusb1.mysinablog.beans.MyUser;
 import com.study.lusb1.mysinablog.db.MyDatabaseHelper;
 import com.study.lusb1.mysinablog.model.Task;
 
+import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Exchanger;
 
 public class MainService extends Service implements Runnable {
     //task queue
@@ -31,7 +41,7 @@ public class MainService extends Service implements Runnable {
         @Override
         public void handleMessage(Message msg) {
             switch(msg.what){
-                case Task.WEIBO_LOGIN:
+                case Task.WEIBO_AUTH:
                     IWeiboActivity activity = (IWeiboActivity)getActivityByName("LoginActivity");
                     activity.refresh(msg.obj);
                     break;
@@ -83,12 +93,18 @@ public class MainService extends Service implements Runnable {
         Message msg = handler.obtainMessage();
         msg.what = task.getTaskId();
         switch(task.getTaskId()){
-            case Task.WEIBO_LOGIN:
+            case Task.WEIBO_AUTH:
                 Log.d("lusb1","check if there is any user");
                 UserService userService = new UserService(new MyDatabaseHelper(MainService.this));
-                ArrayList<User> users = userService.getAllUsers();
-                msg.obj = users;
+                ArrayList<MyUser> myUsers = userService.getAllUsers();
+                msg.obj = myUsers;
                 break;
+            case Task.READ_USER_INFO:
+                Log.d("lusb1","read user info");
+                String accessToken = (String)task.getTaskParams().get("accessToken");
+                String uid = (String)task.getTaskParams().get("uid");
+                String userInfo = readUserInfo(accessToken,uid);
+                Log.d("lusb1",userInfo);
             default:
                 break;
         }
@@ -103,6 +119,47 @@ public class MainService extends Service implements Runnable {
                 }
             }
         }
+        return null;
+    }
+
+    private String readUserInfo(String accessToken,String uid){
+        MyUser myUser = null;
+        String result = "";
+        try {
+            URL url = new URL(Constants.USER_INFO_URL+"?access_token="+accessToken+"&uid="+uid);
+            Log.d("lusb1",url.toString());
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            conn.connect();
+            Log.d("lusb1",conn.getResponseCode()+"");
+            if(conn.getResponseCode() == 200){
+                InputStream is = conn.getInputStream();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1020];
+                int len;
+                while((len = is.read(buffer)) != -1){
+                    byteArrayOutputStream.write(buffer,0,len);
+                }
+                byte[] res = byteArrayOutputStream.toByteArray();
+                is.close();
+                byteArrayOutputStream.close();
+                result = new String(res);
+
+                //json解析
+                JSONObject jsonObject = new JSONObject(result);
+
+                String userName = jsonObject.getString("screen_name");
+                myUser = new MyUser(uid,userName,accessToken,null,"1",null);
+                Log.d("lusb1",userName);
+
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 }

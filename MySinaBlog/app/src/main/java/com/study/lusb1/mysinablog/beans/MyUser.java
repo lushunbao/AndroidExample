@@ -8,7 +8,7 @@ import java.sql.Blob;
  * Created by lushunbao on 2017/3/16.
  */
 
-public class User {
+public class MyUser {
     //User表名
     public static final String TB_NAME="tb_user";
     //User表列
@@ -38,7 +38,7 @@ public class User {
     private String isDefault;
     private Drawable userIcon;
 
-    public User(String userId,String userName,String token,String tokenSecret,String isDefault,Drawable userIcon){
+    public MyUser(String userId, String userName, String token, String tokenSecret, String isDefault, Drawable userIcon){
         this.userId = userId;
         this.userName = userName;
         this.token = token;

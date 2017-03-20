@@ -2,7 +2,6 @@ package com.study.lusb1.mysinablog.activity;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +28,7 @@ public class AuthActivity extends BaseActivity {
     private Oauth2AccessToken mAccessToken;
 
     private SsoHandler ssoHandler;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,16 +44,19 @@ public class AuthActivity extends BaseActivity {
         View v = View.inflate(this,R.layout.dialog_layout,null);
         btn_auth = (Button)v.findViewById(R.id.btn_auth);
         btn_auth.setOnClickListener(new MyOnClickListener());
-        Dialog dialog = new Dialog(AuthActivity.this,R.style.auth_dialog_style);
+        dialog  = new Dialog(AuthActivity.this,R.style.auth_dialog_style);
         dialog.setContentView(v);
         dialog.show();
+        //设置dialog无法通过点击窗体外取消
+        dialog.setCanceledOnTouchOutside(false);
     }
 
     private class MyOnClickListener implements View.OnClickListener{
 
         @Override
         public void onClick(View v) {
-            ssoHandler.authorize(new AuthListener());
+            dialog.dismiss();
+            ssoHandler.authorizeWeb(new AuthListener());
         }
     }
 
@@ -68,7 +71,12 @@ public class AuthActivity extends BaseActivity {
                     mAccessToken = Oauth2AccessToken.parseAccessToken(bundle);
                     if(mAccessToken.isSessionValid()){
                         Toast.makeText(AuthActivity.this,"授权成功",Toast.LENGTH_SHORT).show();
-                        authText.setText(mAccessToken.getToken());
+                        //authText.setText(mAccessToken.getToken());
+                        Intent tokenResult = new Intent();
+                        tokenResult.putExtra("accessToken",mAccessToken.getToken());
+                        tokenResult.putExtra("uid",mAccessToken.getUid());
+                        setResult(RESULT_OK,tokenResult);
+                        finish();
                     }
                 }
             });

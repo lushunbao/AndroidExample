@@ -54,5 +54,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/login"/>
+        android:text="@string/login"
+        android:onClick="onClick"/>
 </LinearLayout>

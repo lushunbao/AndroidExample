@@ -5,5 +5,6 @@
     <string name="auth_msg">第一次登陆需要使用您的新浪微博账户进行登陆授权</string>
     <string name="btn_auth">授权</string>
     <string name="btn_choose_user">choose</string>
-    <string name="no_user_now">no user now!</string>
+    <string name="no_user_now">no myUser now!</string>
+    <string name="token_msg">reading</string>
 </resources>

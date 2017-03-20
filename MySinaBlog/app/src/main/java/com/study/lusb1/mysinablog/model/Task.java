@@ -12,7 +12,9 @@ public class Task {
     //task params
     private Map<String,Object> taskParams;
 
-    public static final int WEIBO_LOGIN = 1;
+    //auth task id
+    public static final int WEIBO_AUTH = 1;
+    public static final int READ_USER_INFO = 2;
 
     public Task(int taskId,Map<String,Object> taskParams){
         this.taskId = taskId;

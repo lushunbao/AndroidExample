@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.study.lusb1.mysinablog.beans.User;
+import com.study.lusb1.mysinablog.beans.MyUser;
 
 /**
  * Created by lushunbao on 2017/3/16.
@@ -22,7 +22,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(User.CREATE_TB_USER);
+        db.execSQL(MyUser.CREATE_TB_USER);
     }
 
     @Override
