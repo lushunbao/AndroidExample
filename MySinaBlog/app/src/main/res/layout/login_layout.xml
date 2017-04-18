@@ -47,7 +47,8 @@
             android:id="@+id/btn_choose_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_choose_user"/>
+            android:text="@string/btn_choose_user"
+            android:onClick="onClick"/>
     </LinearLayout>
     <Button
         android:id="@+id/btn_login"

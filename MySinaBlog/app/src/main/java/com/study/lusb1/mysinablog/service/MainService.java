@@ -37,13 +37,21 @@ public class MainService extends Service implements Runnable {
     //time of thread sleep
     private static final int SLEEP_TIME = 1000;
 
+    private ArrayList<MyUser> myUsers = new ArrayList<>();
+
+    private UserService userService = null;
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch(msg.what){
                 case Task.WEIBO_AUTH:
-                    IWeiboActivity activity = (IWeiboActivity)getActivityByName("LoginActivity");
-                    activity.refresh(msg.obj);
+                    IWeiboActivity loginActivityFromAuth = (IWeiboActivity)getActivityByName("LoginActivity");
+                    loginActivityFromAuth.refresh(msg.obj);
+                    break;
+                case Task.READ_USER_INFO:
+                    IWeiboActivity loginActivityAfterSave = (IWeiboActivity)getActivityByName("LoginActivity");
+                    loginActivityAfterSave.refresh(msg.obj);
                     break;
                 default:
                     break;
@@ -92,19 +100,28 @@ public class MainService extends Service implements Runnable {
     private void doTask(Task task){
         Message msg = handler.obtainMessage();
         msg.what = task.getTaskId();
+        if(userService == null){
+            userService = new UserService(new MyDatabaseHelper(MainService.this));
+        }
         switch(task.getTaskId()){
             case Task.WEIBO_AUTH:
                 Log.d("lusb1","check if there is any user");
-                UserService userService = new UserService(new MyDatabaseHelper(MainService.this));
-                ArrayList<MyUser> myUsers = userService.getAllUsers();
+                myUsers = userService.getAllUsers();
                 msg.obj = myUsers;
                 break;
             case Task.READ_USER_INFO:
                 Log.d("lusb1","read user info");
                 String accessToken = (String)task.getTaskParams().get("accessToken");
                 String uid = (String)task.getTaskParams().get("uid");
-                String userInfo = readUserInfo(accessToken,uid);
-                Log.d("lusb1",userInfo);
+                //parse the user info from json
+                MyUser userInfo = readUserInfo(accessToken,uid);
+                myUsers.add(userInfo);
+                //try to save the user info to database
+                if(userService != null && userService.getUserByUserId(uid) == null){
+                    userService.insertUser(userInfo);
+                }
+                msg.obj = myUsers;
+                break;
             default:
                 break;
         }
@@ -122,7 +139,7 @@ public class MainService extends Service implements Runnable {
         return null;
     }
 
-    private String readUserInfo(String accessToken,String uid){
+    private MyUser readUserInfo(String accessToken,String uid){
         MyUser myUser = null;
         String result = "";
         try {
@@ -153,8 +170,7 @@ public class MainService extends Service implements Runnable {
                 String userName = jsonObject.getString("screen_name");
                 myUser = new MyUser(uid,userName,accessToken,null,"1",null);
                 Log.d("lusb1",userName);
-
-                return result;
+                return myUser;
             }
         } catch (Exception e) {
             e.printStackTrace();

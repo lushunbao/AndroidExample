@@ -40,7 +40,8 @@ public class UserService {
         MyUser myUser = null;
         Cursor cursor = db.query(com.study.lusb1.mysinablog.beans.MyUser.TB_NAME,new String[]{com.study.lusb1.mysinablog.beans.MyUser.USER_ID, com.study.lusb1.mysinablog.beans.MyUser.USER_NAME, com.study.lusb1.mysinablog.beans.MyUser.TOKEN, com.study.lusb1.mysinablog.beans.MyUser.TOKEN_SECRET, com.study.lusb1.mysinablog.beans.MyUser.IS_DEFAULT},
                 com.study.lusb1.mysinablog.beans.MyUser.USER_ID + "=?",new String[]{id},null,null,null);
-        if(cursor != null){
+        if(cursor != null && cursor.getCount() > 0){
+            cursor.moveToFirst();
             String userId = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_ID));
             String userName = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_NAME));
             String token = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.TOKEN));
@@ -58,15 +59,18 @@ public class UserService {
         ArrayList<MyUser> myUsers = new ArrayList<>();
         Cursor cursor = db.query(com.study.lusb1.mysinablog.beans.MyUser.TB_NAME,new String[]{com.study.lusb1.mysinablog.beans.MyUser.USER_ID, com.study.lusb1.mysinablog.beans.MyUser.USER_NAME, com.study.lusb1.mysinablog.beans.MyUser.TOKEN, com.study.lusb1.mysinablog.beans.MyUser.TOKEN_SECRET, com.study.lusb1.mysinablog.beans.MyUser.IS_DEFAULT},
                 null,null,null,null,null);
-        while(cursor.moveToNext()){
-            String userId = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_ID));
-            String userName = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_NAME));
-            String token = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.TOKEN));
-            String tokenSecret = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.TOKEN_SECRET));
-            String isDefault = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.IS_DEFAULT));
-            MyUser myUser = new MyUser(userId,userName,token,tokenSecret,isDefault,null);
-            myUsers.add(myUser);
+        if(cursor != null && cursor.getCount() > 0){
+            while(cursor.moveToNext()){
+                String userId = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_ID));
+                String userName = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.USER_NAME));
+                String token = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.TOKEN));
+                String tokenSecret = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.TOKEN_SECRET));
+                String isDefault = cursor.getString(cursor.getColumnIndex(com.study.lusb1.mysinablog.beans.MyUser.IS_DEFAULT));
+                MyUser myUser = new MyUser(userId,userName,token,tokenSecret,isDefault,null);
+                myUsers.add(myUser);
+            }
         }
+
         db.close();
         return myUsers;
     }
