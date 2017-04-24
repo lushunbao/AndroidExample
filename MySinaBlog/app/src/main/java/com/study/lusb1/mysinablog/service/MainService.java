@@ -3,6 +3,9 @@ package com.study.lusb1.mysinablog.service;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -74,6 +77,12 @@ public class MainService extends Service implements Runnable {
     }
 
     @Override
+    public void onDestroy() {
+        isRun = false;
+        super.onDestroy();
+    }
+
+    @Override
     public void run() {
         while(isRun){
             Task task = null;
@@ -115,9 +124,9 @@ public class MainService extends Service implements Runnable {
                 String uid = (String)task.getTaskParams().get("uid");
                 //parse the user info from json
                 MyUser userInfo = readUserInfo(accessToken,uid);
-                myUsers.add(userInfo);
                 //try to save the user info to database
-                if(userService != null && userService.getUserByUserId(uid) == null){
+                if(userService != null && userService.getUserByUserId(uid) == null && userInfo != null){
+                    myUsers.add(userInfo);
                     userService.insertUser(userInfo);
                 }
                 msg.obj = myUsers;
@@ -166,9 +175,16 @@ public class MainService extends Service implements Runnable {
 
                 //json解析
                 JSONObject jsonObject = new JSONObject(result);
-
+                //用户名
                 String userName = jsonObject.getString("screen_name");
-                myUser = new MyUser(uid,userName,accessToken,null,"1",null);
+                //获取头像
+                String user_head = jsonObject.getString("avatar_large");
+                URL head_url = new URL(user_head);
+                Log.d("lusb1","user head url:"+user_head);
+                HttpURLConnection head_connection = (HttpURLConnection)head_url.openConnection();
+                Bitmap user_head_image = BitmapFactory.decodeStream(head_connection.getInputStream());
+                BitmapDrawable user_head_drawable = new BitmapDrawable(getResources(),user_head_image);
+                myUser = new MyUser(uid,userName,accessToken,null,"1",user_head_drawable);
                 Log.d("lusb1",userName);
                 return myUser;
             }

@@ -17,17 +17,19 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/btn_add"
         android:minWidth="0dp"
-        android:minHeight="0dp"/>
+        android:minHeight="0dp"
+        android:onClick="onClick"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
         android:background="@drawable/account_head_bg">
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/user_head_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:src="@drawable/account_head_default"/>
     </LinearLayout>
 
@@ -42,6 +44,7 @@
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
             android:text="@string/no_user_now"/>
         <Button
             android:id="@+id/btn_choose_user"

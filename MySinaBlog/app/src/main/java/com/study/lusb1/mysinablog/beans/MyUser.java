@@ -38,6 +38,8 @@ public class MyUser {
     private String isDefault;
     private Drawable userIcon;
 
+    public MyUser(){}
+
     public MyUser(String userId, String userName, String token, String tokenSecret, String isDefault, Drawable userIcon){
         this.userId = userId;
         this.userName = userName;
