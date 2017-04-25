@@ -25,6 +25,7 @@ import com.study.lusb1.mysinablog.R;
 import com.study.lusb1.mysinablog.beans.MyUser;
 import com.study.lusb1.mysinablog.model.Task;
 import com.study.lusb1.mysinablog.service.MainService;
+import com.study.lusb1.mysinablog.view.CircleImageView;
 
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
     private Button btn_choose_user;
     private Button btn_add_account;
     private TextView user_name;
-    private ImageView user_head;
+    private CircleImageView user_head;
 
     private ListView user_list;
     private TextView user_token;
@@ -79,7 +80,7 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
         Log.d("lusb1","login activity init");
         btn_login = (Button)findViewById(R.id.btn_login);
         user_name = (TextView)findViewById(R.id.user_name);
-        user_head = (ImageView)findViewById(R.id.user_head_img);
+        user_head = (CircleImageView) findViewById(R.id.user_head_img);
         btn_choose_user = (Button)findViewById(R.id.btn_choose_user);
         btn_add_account = (Button)findViewById(R.id.btn_add_acount);
         initDialog();

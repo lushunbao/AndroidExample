@@ -2,8 +2,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
+    <android.support.v4.view.ViewPager
+        android:id="@+id/frag_page"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="hello blog"/>
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    </android.support.v4.view.ViewPager>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+    <RadioGroup
+        android:id="@+id/tab_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/tab_home"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Home"
+            android:button="@null"
+            android:checked="true"
+            android:drawableTop="@drawable/home_icon"
+            android:gravity="center"/>
+        <RadioButton
+            android:id="@+id/tab_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Info"
+            android:button="@null"
+            android:checked="false"
+            android:drawableTop="@drawable/info_icon"
+            android:gravity="center"/>
+    </RadioGroup>
 </LinearLayout>
