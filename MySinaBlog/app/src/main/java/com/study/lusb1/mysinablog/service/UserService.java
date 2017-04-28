@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.study.lusb1.mysinablog.beans.MyUser;
 import com.study.lusb1.mysinablog.db.MyDatabaseHelper;
+import com.study.lusb1.mysinablog.util.MyLog;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +23,10 @@ import java.util.ArrayList;
  */
 
 public class UserService {
+
+    private boolean isDebug = false;
+    public static final String TAG = "MySinaBlog.UserService";
+
     private MyDatabaseHelper myDatabaseHelper;
     private SQLiteDatabase db;
     private byte[] icon_res;
@@ -98,7 +103,7 @@ public class UserService {
         bitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
         icon_res = byteArrayOutputStream.toByteArray();
         String write_in = new String(icon_res);
-        Log.d("lusb1","icon save to database:"+write_in);
+        MyLog.d(isDebug,TAG,"icon save to database:"+write_in);
         return icon_res;
     }
 
@@ -124,7 +129,7 @@ public class UserService {
         Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream);
         bitmapDrawable = new BitmapDrawable(bitmap);
         String read_out = new String(icon_res);
-        Log.d("lusb1","icon read from database:"+read_out);
+        MyLog.d(isDebug,TAG,"icon read from database:"+read_out);
         return bitmapDrawable;
     }
 }

@@ -4,12 +4,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,16 +21,21 @@ import android.widget.TextView;
 
 import com.study.lusb1.mysinablog.R;
 import com.study.lusb1.mysinablog.beans.MyUser;
-import com.study.lusb1.mysinablog.model.Task;
+import com.study.lusb1.mysinablog.beans.Task;
 import com.study.lusb1.mysinablog.service.MainService;
+import com.study.lusb1.mysinablog.util.MyLog;
 import com.study.lusb1.mysinablog.view.CircleImageView;
 
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
+import static com.study.lusb1.mysinablog.beans.Constants.USER_PREF_NAME;
 
 public class LoginActivity extends BaseActivity implements IWeiboActivity {
+
+    private boolean isDebug = false;
+    public static final String TAG = "MySinaBlog.LoginActivity";
 
     private static final int AUTH_REQUEST = 1;
     private Button btn_login;
@@ -50,7 +53,6 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
     private SharedPreferences sharedPreferences = null;
     private ArrayList<MyUser> myUsers = null;
 
-    private final static String USER_PREF_NAME = "user_pref";
     private final static int SET_CUR_USER = 2;
 
     private Handler mHandler = new Handler(){
@@ -77,7 +79,7 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
 
     @Override
     public void init() {
-        Log.d("lusb1","login activity init");
+        MyLog.d(isDebug,TAG,"login activity init");
         btn_login = (Button)findViewById(R.id.btn_login);
         user_name = (TextView)findViewById(R.id.user_name);
         user_head = (CircleImageView) findViewById(R.id.user_head_img);
@@ -89,17 +91,17 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
     @Override
     public void refresh(Object... params) {
         myUsers = new ArrayList<>((ArrayList<MyUser>) params[0]);
-        Log.d("lusb1","refresh myUsers"+myUsers);
+        MyLog.d(isDebug,TAG,"refresh myUsers"+myUsers);
         Message msg = mHandler.obtainMessage();
         if(myUsers == null || myUsers.size() == 0){
             //查询数据库中没有用户
-            Log.d("lusb1","there is no user in database");
+            MyLog.d(isDebug,TAG,"there is no user in database");
             Intent intent = new Intent(LoginActivity.this,AuthActivity.class);
             startActivityForResult(intent,AUTH_REQUEST);
         }
         else{
             //查询数据库中有用户，将第一个用户设置为当前用户，之后需要添加默认用户的逻辑
-            Log.d("lusb1","there is user in database");
+            MyLog.d(isDebug,TAG,"there is user in database");
             msg.what = SET_CUR_USER;
             mHandler.sendMessage(msg);
         }
@@ -110,8 +112,9 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
             case R.id.btn_login:
                 //检查有没有用户，存在当前用户的情况下，登陆
                 if(currentUser != null && currentUser.getUserName() != null){
-                    Log.d("lusb1","current user is not null login to the main page");
+                    MyLog.d(isDebug,TAG,"current user is not null login to the main page");
                     SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("access_token",currentUser.getToken());
                     editor.putString("user_id",currentUser.getUserId());
                     editor.commit();
                     startLoginToMainBlogPage();
@@ -175,7 +178,7 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
         user_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("lusb1","user item clicked");
+                MyLog.d(isDebug,TAG,"user item clicked");
                 user_dialog.dismiss();
                 setCurrentUser(myAdapter.getUser(),position);
             }
@@ -201,7 +204,7 @@ public class LoginActivity extends BaseActivity implements IWeiboActivity {
     @Override
     public void onBackPressed() {
         //login界面直接退出
-        Log.d("lusb1","onBackPressed");
+        MyLog.d(isDebug,TAG,"onBackPressed");
         this.clearAllActivity();
     }
 

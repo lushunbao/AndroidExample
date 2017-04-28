@@ -3,34 +3,37 @@ package com.study.lusb1.mysinablog.service;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 
 import com.study.lusb1.mysinablog.activity.IWeiboActivity;
 import com.study.lusb1.mysinablog.beans.Constants;
 import com.study.lusb1.mysinablog.beans.MyUser;
 import com.study.lusb1.mysinablog.db.MyDatabaseHelper;
-import com.study.lusb1.mysinablog.model.Task;
+import com.study.lusb1.mysinablog.beans.Task;
+import com.study.lusb1.mysinablog.retrofit.RetrofitFactory;
+import com.study.lusb1.mysinablog.util.MyLog;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Exchanger;
 
 public class MainService extends Service implements Runnable {
+
+    private boolean isDebug = true;
+    public static final String TAG = "MySinaBlog.MainService";
+
+    private String accessToken = "";
+    private String userId = "";
+
     //task queue
     private static Queue<Task> tasks = new LinkedList<>();
     //activity list
@@ -39,6 +42,8 @@ public class MainService extends Service implements Runnable {
     private boolean isRun = false;
     //time of thread sleep
     private static final int SLEEP_TIME = 1000;
+
+    private RetrofitFactory retrofitFactory;
 
     private ArrayList<MyUser> myUsers = new ArrayList<>();
 
@@ -56,6 +61,10 @@ public class MainService extends Service implements Runnable {
                     IWeiboActivity loginActivityAfterSave = (IWeiboActivity)getActivityByName("LoginActivity");
                     loginActivityAfterSave.refresh(msg.obj);
                     break;
+                case Task.READ_USER_TIMELINE:
+                    IWeiboActivity mainActivityReadUserTimeline = (IWeiboActivity)getActivityByName("MainActivity");
+                    mainActivityReadUserTimeline.refresh(msg.obj);
+                    break;
                 default:
                     break;
             }
@@ -65,6 +74,7 @@ public class MainService extends Service implements Runnable {
 
     @Override
     public void onCreate() {
+        retrofitFactory = RetrofitFactory.getInstance(this);
         isRun = true;
         Thread thread = new Thread(this);
         thread.start();
@@ -106,6 +116,7 @@ public class MainService extends Service implements Runnable {
         tasks.add(task);
     }
 
+    //执行进来的task
     private void doTask(Task task){
         Message msg = handler.obtainMessage();
         msg.what = task.getTaskId();
@@ -114,28 +125,38 @@ public class MainService extends Service implements Runnable {
         }
         switch(task.getTaskId()){
             case Task.WEIBO_AUTH:
-                Log.d("lusb1","check if there is any user");
+                MyLog.d(isDebug,TAG,"check if there is any user");
                 myUsers = userService.getAllUsers();
                 msg.obj = myUsers;
                 break;
             case Task.READ_USER_INFO:
-                Log.d("lusb1","read user info");
-                String accessToken = (String)task.getTaskParams().get("accessToken");
-                String uid = (String)task.getTaskParams().get("uid");
+                MyLog.d(isDebug,TAG,"read user info");
+                accessToken = (String)task.getTaskParams().get("accessToken");
+                userId = (String)task.getTaskParams().get("uid");
                 //parse the user info from json
-                MyUser userInfo = readUserInfo(accessToken,uid);
+                MyUser userInfo = readUserInfo(accessToken,userId);
                 //try to save the user info to database
-                if(userService != null && userService.getUserByUserId(uid) == null && userInfo != null){
+                if(userService != null && userService.getUserByUserId(userId) == null && userInfo != null){
                     myUsers.add(userInfo);
                     userService.insertUser(userInfo);
                 }
                 msg.obj = myUsers;
+                break;
+            case Task.READ_USER_TIMELINE:
+                MyLog.d(isDebug,TAG,"read user time line");
+                accessToken = (String)task.getTaskParams().get("accessToken");
+                userId = (String)task.getTaskParams().get("uid");
+                ArrayList<String> msgList = readUserTimeLine(accessToken,userId);
+                MyLog.d(isDebug,TAG,"msgList:"+msgList);
+                msg.obj = msgList;
                 break;
             default:
                 break;
         }
         handler.sendMessage(msg);
     }
+
+
 
     private Activity getActivityByName(String name){
         if(activityList != null){
@@ -148,50 +169,110 @@ public class MainService extends Service implements Runnable {
         return null;
     }
 
+    //获取用户信息
     private MyUser readUserInfo(String accessToken,String uid){
         MyUser myUser = null;
         String result = "";
-        try {
-            URL url = new URL(Constants.USER_INFO_URL+"?access_token="+accessToken+"&uid="+uid);
-            Log.d("lusb1",url.toString());
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            conn.connect();
-            Log.d("lusb1",conn.getResponseCode()+"");
-            if(conn.getResponseCode() == 200){
-                InputStream is = conn.getInputStream();
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1020];
-                int len;
-                while((len = is.read(buffer)) != -1){
-                    byteArrayOutputStream.write(buffer,0,len);
-                }
-                byte[] res = byteArrayOutputStream.toByteArray();
-                is.close();
-                byteArrayOutputStream.close();
-                result = new String(res);
+//        try {
+//            URL url = new URL(Constants.USER_INFO_URL+"?access_token="+accessToken+"&uid="+uid);
+//            MyLog.d(isDebug,TAG,url.toString());
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setRequestMethod("GET");
+//            conn.setConnectTimeout(5000);
+//            conn.setReadTimeout(5000);
+//            conn.connect();
+//            MyLog.d(isDebug,TAG,conn.getResponseCode()+"");
+//            if(conn.getResponseCode() == 200){
+//                result = buildStringFromHttpInputStream(conn.getInputStream());
+//                //json解析
+//                JSONObject jsonObject = new JSONObject(result);
+//                //用户名
+//                String userName = jsonObject.getString("screen_name");
+//                //获取头像
+//                String user_head = jsonObject.getString("avatar_large");
+//                URL head_url = new URL(user_head);
+//                MyLog.d(isDebug,TAG,"user head url:"+user_head);
+//                HttpURLConnection head_connection = (HttpURLConnection)head_url.openConnection();
+//                Bitmap user_head_image = BitmapFactory.decodeStream(head_connection.getInputStream());
+//                BitmapDrawable user_head_drawable = new BitmapDrawable(getResources(),user_head_image);
+//                myUser = new MyUser(uid,userName,accessToken,null,"1",user_head_drawable);
+//                MyLog.d(isDebug,TAG,userName);
+//                return myUser;
+//            }
+//        } catch (Exception e) {
+//            MyLog.d(isDebug,TAG,"读取用户信息失败");
+//            e.printStackTrace();
+//        }
 
-                //json解析
-                JSONObject jsonObject = new JSONObject(result);
-                //用户名
-                String userName = jsonObject.getString("screen_name");
-                //获取头像
-                String user_head = jsonObject.getString("avatar_large");
-                URL head_url = new URL(user_head);
-                Log.d("lusb1","user head url:"+user_head);
-                HttpURLConnection head_connection = (HttpURLConnection)head_url.openConnection();
-                Bitmap user_head_image = BitmapFactory.decodeStream(head_connection.getInputStream());
-                BitmapDrawable user_head_drawable = new BitmapDrawable(getResources(),user_head_image);
-                myUser = new MyUser(uid,userName,accessToken,null,"1",user_head_drawable);
-                Log.d("lusb1",userName);
-                return myUser;
+        myUser = retrofitFactory.readUserInfo(accessToken,uid);
+
+        return myUser;
+    }
+
+    //获取用户自己的timeline
+    private ArrayList<String> readUserTimeLine(String accessToken,String uid) {
+        ArrayList<String> msgList = new ArrayList<>();
+        String readFromHttp = "";
+
+//        try{
+//            URL user_time_line = new URL(Constants.USER_TIMELINE+"?access_token="+accessToken+"&uid="+uid);
+//            MyLog.d(isDebug,TAG,user_time_line.toString());
+//
+//            HttpURLConnection conn = (HttpURLConnection) user_time_line.openConnection();
+//            conn.setRequestMethod("GET");
+//            conn.setConnectTimeout(5000);
+//            conn.setReadTimeout(5000);
+//            conn.connect();
+//
+//            MyLog.d(isDebug,TAG,conn.getResponseCode()+"");
+//            if(conn.getResponseCode() == 200){
+//                readFromHttp = buildStringFromHttpInputStream(conn.getInputStream());
+//                MyLog.d(isDebug,TAG,"readFromHttp"+readFromHttp);
+//
+//                JSONObject statuses = new JSONObject(readFromHttp);
+//                JSONArray statusArray = statuses.getJSONArray("statuses");
+//                for(int i=0;i<statusArray.length();i++){
+//                    JSONObject status = statusArray.getJSONObject(i);
+//                    String msg = status.getString("text");
+//                    MyLog.d(isDebug,TAG,msg);
+//                    msgList.add(msg);
+//                }
+//            }
+//        }
+//        catch(Exception e){
+//            e.printStackTrace();
+//            MyLog.d(isDebug,TAG,"读取用户timeline失败");
+//        }
+        msgList = retrofitFactory.readUserTimeline(accessToken,uid);
+        return msgList;
+    }
+
+    private String buildStringFromHttpInputStream(InputStream is){
+        String res = "";
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = -1;
+        try{
+            while((len = is.read(buffer)) != -1){
+                os.write(buffer,0,len);
             }
-        } catch (Exception e) {
+            res = new String(os.toByteArray());
+        }
+        catch(Exception e){
+            MyLog.d(isDebug,TAG,"decode inputstream failed");
             e.printStackTrace();
         }
+        finally {
+            try{
+                is.close();
+                os.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
-        return null;
+        return res;
     }
 }

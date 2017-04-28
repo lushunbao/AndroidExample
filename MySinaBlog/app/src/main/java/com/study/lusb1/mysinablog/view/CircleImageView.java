@@ -18,6 +18,7 @@ import android.widget.ImageView;
 
 
 import com.study.lusb1.mysinablog.R;
+import com.study.lusb1.mysinablog.util.MyLog;
 
 import java.lang.ref.WeakReference;
 
@@ -26,6 +27,10 @@ import java.lang.ref.WeakReference;
  */
 
 public class CircleImageView extends ImageView {
+
+    private boolean isDebug = false;
+    public static final String TAG = "MySinaBlog.CircleImageView";
+
     private Paint mPaint;
     //先绘制的是DST，使头像为原型就先加载头像的图片
     private Xfermode mXfermode = new PorterDuffXfermode(PorterDuff.Mode.DST_IN);
@@ -52,14 +57,14 @@ public class CircleImageView extends ImageView {
 
     public CircleImageView(Context context) {
         this(context,null);
-        Log.d("lusb1","constructor one");
+        MyLog.d(isDebug,TAG,"constructor one");
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
     }
 
     public CircleImageView(Context context, AttributeSet attrs) {
         super(context,attrs);
-        Log.d("lusb1","constructor two");
+        MyLog.d(isDebug,TAG,"constructor two");
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         TypedArray ta = context.obtainStyledAttributes(attrs,R.styleable.CircleImageView);
@@ -74,7 +79,7 @@ public class CircleImageView extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.d("lusb1","onDraw");
+        MyLog.d(isDebug,TAG,"onDraw");
 
         //在缓存中取出bitmap
         Bitmap bitmap = mWeakBitmap == null ? null : mWeakBitmap.get();
@@ -85,6 +90,8 @@ public class CircleImageView extends ImageView {
             //获取drawable的宽高
             int dWidth = drawable.getIntrinsicWidth();
             int dHeight = drawable.getIntrinsicHeight();
+            MyLog.d(isDebug,TAG,"dWidth:"+dWidth+"\t"+"dHeight:"+dHeight);
+            MyLog.d(isDebug,TAG,"width:"+getWidth()+"\t"+"height:"+getHeight());
 
             if(drawable != null){
                 //创建bitmap
@@ -99,10 +106,11 @@ public class CircleImageView extends ImageView {
                 }
                 else{
                     scale = getWidth()*1.0f/Math.min(dWidth,dHeight);
+                    MyLog.d(isDebug,TAG,"scale:"+scale);
                 }
 
                 //根据缩放比例，设置bounds，相当于缩放图片了
-                drawable.setBounds(0,0,(int)scale*dWidth,(int)scale*dHeight);
+                drawable.setBounds(0,0,(int)(scale*dWidth),(int)(scale*dHeight));
 
                 drawable.draw(drawCanvas);
 
@@ -125,9 +133,9 @@ public class CircleImageView extends ImageView {
         }
 
         //如果bitmap还存在，则直接绘制即可
-        if (bitmap != null)
+        else if (bitmap != null)
         {
-            Log.d("lusb1","bitmap is not null");
+            MyLog.d(isDebug,TAG,"bitmap is not null");
             mPaint.setXfermode(null);
             canvas.drawBitmap(bitmap, 0.0f, 0.0f, mPaint);
             return;
@@ -137,7 +145,7 @@ public class CircleImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.d("lusb1","onMeasure");
+        MyLog.d(isDebug,TAG,"onMeasure");
         /**
          * 如果类型是圆形，则强制改变view的宽高一致，以小值为准
          */
@@ -149,7 +157,7 @@ public class CircleImageView extends ImageView {
 
     @Override
     public void invalidate() {
-        Log.d("lusb1","invalidate");
+        MyLog.d(isDebug,TAG,"invalidate");
         mWeakBitmap = null;
         if (mMaskBitmap != null)
         {
@@ -165,7 +173,7 @@ public class CircleImageView extends ImageView {
      */
     public Bitmap getBitmap()
     {
-        Log.d("lusb1","getBitmap");
+        MyLog.d(isDebug,TAG,"getBitmap");
         Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(),
                 Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);

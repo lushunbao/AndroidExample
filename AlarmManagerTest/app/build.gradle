@@ -1,19 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        MySinaBlog {
-            keyAlias 'android.keystore'
-            keyPassword '123456'
-            storeFile file('D:/AndroidExample/MySinaBlog/android.keystore')
-            storePassword '123456'
-        }
-    }
     compileSdkVersion 24
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.study.lusb1.mysinablog"
-        minSdkVersion 18
+        applicationId "com.study.lusb1.alarmmanagertest"
+        minSdkVersion 23
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
@@ -24,20 +16,14 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            signingConfig signingConfigs.MySinaBlog
-        }
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
-    compile project(':openDefault-1.0.0-openDefaultRelease')
-    compile 'com.squareup.retrofit2:retrofit:2.2.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.2.0'
 }

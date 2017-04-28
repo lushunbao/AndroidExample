@@ -1,4 +1,4 @@
-package com.study.lusb1.mysinablog.model;
+package com.study.lusb1.mysinablog.beans;
 
 import java.util.Map;
 
@@ -15,6 +15,7 @@ public class Task {
     //auth task id
     public static final int WEIBO_AUTH = 1;
     public static final int READ_USER_INFO = 2;
+    public static final int READ_USER_TIMELINE = 3;
 
     public Task(int taskId,Map<String,Object> taskParams){
         this.taskId = taskId;

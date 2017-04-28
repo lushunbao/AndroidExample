@@ -12,7 +12,10 @@ import android.util.LruCache;
  */
 
 public class MemoryCacheUtil {
-    private static final String LOG_TAG = "MemoryCacheUtil";
+
+    private boolean isDebug = false;
+    public static final String TAG = "MySinaBlog.MemoryCacheUtil";
+
     private LruCache<String,Bitmap> lruCache;
     private Context context;
 
@@ -37,7 +40,7 @@ public class MemoryCacheUtil {
      * @param imgBitmap
      */
     public void putBitmap(String imgUrl,Bitmap imgBitmap){
-        Log.d(LOG_TAG,"putBitmap to the LruCache");
+        MyLog.d(isDebug,TAG,"putBitmap to the LruCache");
         lruCache.put(imgUrl,imgBitmap);
     }
 
@@ -47,7 +50,7 @@ public class MemoryCacheUtil {
      * @return
      */
     public Bitmap getBitmap(String imgUrl){
-        Log.d(LOG_TAG,"getBitmap from LruCache");
+        MyLog.d(isDebug,TAG,"getBitmap from LruCache");
         return lruCache.get(imgUrl);
     }
 }

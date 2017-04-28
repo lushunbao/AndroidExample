@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.sina.weibo.sdk.api.share.Base;
 import com.study.lusb1.mysinablog.service.MainService;
+import com.study.lusb1.mysinablog.util.MyLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,10 @@ import java.util.List;
  */
 
 public class MyApplication extends Application {
+
+    private boolean isDebug = false;
+    public static final String TAG = "MySinaBlog.MyApplication";
+
     private List<Activity> activities;
 
     @Override
@@ -27,7 +32,7 @@ public class MyApplication extends Application {
     public void clearAllActivity(){
         stopService(new Intent(getApplicationContext(), MainService.class));
         for(Activity activity : activities){
-            Log.d("lusb1",activity.getLocalClassName()+"finish");
+            MyLog.d(isDebug,TAG,activity.getLocalClassName()+"finish");
             activity.finish();
         }
         activities.clear();
@@ -53,7 +58,7 @@ public class MyApplication extends Application {
         }
         catch (Exception e){
             e.printStackTrace();
-            Log.d("lusb1","退出异常");
+            MyLog.d(isDebug,TAG,"退出异常");
         }
     }
 }
